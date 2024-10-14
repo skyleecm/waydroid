@@ -14,7 +14,7 @@ def start(args, session, unlocked_cb=None):
     waydroid_data = session["waydroid_data"]
     apps_dir = session["xdg_data_home"] + "/applications/"
 
-    def makeDesktopFile(appInfo):
+    def makeDesktopFile(appInfo, hide=False):
         if appInfo is None:
             return -1
 
@@ -38,6 +38,7 @@ Exec=waydroid app launch {packageName}
 Icon={waydroid_data}/icons/{packageName}.png
 Categories=X-WayDroid-App;
 X-Purism-FormFactor=Workstation;Mobile;
+NoDisplay={str(hide).lower()}
 Actions=app_settings;
 
 [Desktop Action app_settings]
@@ -79,9 +80,9 @@ NoDisplay={str(hide).lower()}
             if not os.path.exists(apps_dir):
                 os.mkdir(apps_dir, 0o700)
             appsList = platformService.getAppsInfo()
-            for app in appsList:
-                makeDesktopFile(app)
             multiwin = platformService.getprop("persist.waydroid.multi_windows", "false")
+            for app in appsList:
+                makeDesktopFile(app, multiwin == "false")
             makeWaydroidDesktopFile(multiwin == "true")
         if unlocked_cb:
             unlocked_cb()
